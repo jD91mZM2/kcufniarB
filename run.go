@@ -21,6 +21,7 @@ var errInterrupt = errors.New("interrupted")
 type env struct {
 	code  string
 	vars  []rune
+	index int
 	debug bool
 }
 
@@ -32,8 +33,6 @@ func run(e *env) error {
 		e.vars = make([]rune, 1)
 	}
 
-	index := 0
-
 	stdin := bufio.NewReader(os.Stdin)
 	reader := strings.NewReader(e.code)
 
@@ -44,27 +43,34 @@ func run(e *env) error {
 		}
 		switch c {
 		case '<':
-			if index <= 0 {
+			if e.index <= 0 {
 				return errBounds
 			}
-			index--
+			e.index--
+
+			if e.debug {
+				os.Stdout.Write([]byte("Index now on #" + strconv.Itoa(e.index) + "\n"))
+			}
 		case '>':
-			index++
+			e.index++
 
 			// I usually like to check >= instead of ==, but in this case
 			// that'd require a for loop and everything. Not worth it.
-			if index == len(e.vars) {
+			if e.index == len(e.vars) {
 				e.vars = append(e.vars, 0)
 			}
+
+			if e.debug {
+				os.Stdout.Write([]byte("Index now on #" + strconv.Itoa(e.index) + "\n"))
+			}
 		case '+':
-			e.vars[index]++
+			e.vars[e.index]++
 		case '-':
-			e.vars[index]--
+			e.vars[e.index]--
 		case '.':
-			char := e.vars[index]
+			char := e.vars[e.index]
 			len := utf8.RuneLen(char)
 
-			// For example newline
 			if len < 0 {
 				continue
 			}
@@ -73,20 +79,20 @@ func run(e *env) error {
 			utf8.EncodeRune(bytes, char)
 
 			if e.debug {
-				suffix := " (char #" + strconv.Itoa(int(char)) + ", index [" + strconv.Itoa(index) + "])\n"
+				suffix := " (char #" + strconv.Itoa(int(char)) + ", e.index [" + strconv.Itoa(e.index) + "])\n"
 				bytes = append(bytes, []byte(suffix)...)
 			}
 
 			os.Stdout.Write(bytes)
 		case ',':
-			e.vars[index], err = getchar(stdin)
+			e.vars[e.index], err = getchar(stdin)
 			if err != nil {
 				return err
 			}
 		case '[':
 			code := ""
 			brackets := 0
-			i := index
+			i := e.index
 
 			for c, _, err := reader.ReadRune(); err == nil; c, _, err = reader.ReadRune() {
 				if c == '[' {
