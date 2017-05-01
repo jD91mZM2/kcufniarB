@@ -62,7 +62,14 @@ func run(e *env) error {
 			e.vars[index]--
 		case '.':
 			char := e.vars[index]
-			bytes := make([]byte, utf8.RuneLen(char))
+			len := utf8.RuneLen(char)
+
+			// For example newline
+			if len < 0 {
+				continue
+			}
+
+			bytes := make([]byte, len)
 			utf8.EncodeRune(bytes, char)
 
 			if e.debug {
