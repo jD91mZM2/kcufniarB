@@ -19,5 +19,4 @@ but replace `test.bf` with your Brainfuck file.
  - Generate Brainfuck code from string (`kcufniarB genstr Hi` for example returns `++++++++[->+++++++++<]>.>+++++++[->+++++++++++++++<]>.`)
 
 ## Screenshot
-![Imgur](http://i.imgur.com/yufbYp9.png)
-![Imgur](http://i.imgur.com/MljwcTt.png)
+![Imgur](http://i.imgur.com/8T3XGZi.png)
