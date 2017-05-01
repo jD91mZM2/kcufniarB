@@ -94,10 +94,9 @@ func run(e *env) error {
 			}
 
 			for e.vars[i] != 0 {
-				e2 := &env{
-					code: code,
-					vars: e.vars,
-				}
+				e2 := &env{}
+				*e2 = *e
+				e2.code = code
 				err := run(e2)
 				if err != nil {
 					return err

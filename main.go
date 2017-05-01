@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"strings"
@@ -33,8 +34,7 @@ func main() {
 		debug = true
 		fallthrough
 	case "run":
-		scanner := bufio.NewScanner(os.Stdin)
-		code, ok := readUntilEOF(scanner)
+		code, ok := readFileOrStdin(args[1:])
 		if !ok {
 			return
 		}
@@ -49,12 +49,10 @@ func main() {
 			stdutil.PrintErr("Error while executing code", err)
 		}
 	case "simplify":
-		scanner := bufio.NewScanner(os.Stdin)
-		code, ok := readUntilEOF(scanner)
+		code, ok := readFileOrStdin(args[1:])
 		if !ok {
 			return
 		}
-
 		os.Stdout.Write([]byte(simplify(code)))
 	default:
 		printActions()
@@ -65,6 +63,22 @@ func printActions() {
 	stdutil.PrintErr("Actions: run, debug, simplify", nil)
 }
 
+func readFileOrStdin(args []string) (str string, ok bool) {
+	if len(args) < 1 {
+		scanner := bufio.NewScanner(os.Stdin)
+		str, ok = readUntilEOF(scanner)
+		return
+	}
+
+	bytes, err := ioutil.ReadFile(args[0])
+	if err != nil {
+		stdutil.PrintErr("Could not read file", err)
+		return
+	}
+	str = string(bytes)
+	ok = true
+	return
+}
 func readUntilEOF(scanner *bufio.Scanner) (str string, ok bool) {
 	ok = true
 	for scanner.Scan() {

@@ -5,7 +5,7 @@ kcufniarB is a simple command line Brainfuck interpreter.
 
 To run a script, type
 ```
-kcufniarB run < test.bf
+kcufniarB run test.bf
 ```
 but replace `test.bf` with your Brainfuck file.
 
