@@ -17,4 +17,5 @@ but replace `test.bf` with your Brainfuck file.
  - Terminal raw mode (skips having to press enter when using the `,` command)
 
 ## Screenshot
-![Imgur](http://i.imgur.com/pJ5gKFP.png)
+![Imgur](http://i.imgur.com/yufbYp9.png)
+![Imgur](http://i.imgur.com/MljwcTt.png)
