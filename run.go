@@ -47,10 +47,6 @@ func run(e *env) error {
 				return errBounds
 			}
 			e.index--
-
-			if e.debug {
-				os.Stdout.Write([]byte("Index now on #" + strconv.Itoa(e.index) + "\n"))
-			}
 		case '>':
 			e.index++
 
@@ -58,10 +54,6 @@ func run(e *env) error {
 			// that'd require a for loop and everything. Not worth it.
 			if e.index == len(e.vars) {
 				e.vars = append(e.vars, 0)
-			}
-
-			if e.debug {
-				os.Stdout.Write([]byte("Index now on #" + strconv.Itoa(e.index) + "\n"))
 			}
 		case '+':
 			e.vars[e.index]++
@@ -115,6 +107,7 @@ func run(e *env) error {
 					return err
 				}
 				e.vars = e2.vars
+				e.index = e2.index
 			}
 		case ']':
 			return errUnmatch
