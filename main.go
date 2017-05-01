@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -54,13 +55,60 @@ func main() {
 			return
 		}
 		os.Stdout.Write([]byte(simplify(code)))
+	case "genval":
+		if len(args) < 2 {
+			stdutil.PrintErr("Usage: genval <number>\nGenerate code for number", nil)
+			return
+		}
+
+		n, err := strconv.Atoi(args[1])
+		if err != nil {
+			stdutil.PrintErr("Not a number", nil)
+			return
+		}
+		if n <= 0 {
+			stdutil.PrintErr("Number must be more than 0", nil)
+			return
+		}
+
+		x, y, diff := findmultiple(n)
+
+		if x == 0 && y == 0 && diff == 0 {
+			os.Stdout.Write([]byte("Multiple not found!\n"))
+			return
+		}
+
+		os.Stdout.Write([]byte(genmultiple(x, y, diff) + "\n"))
+	case "genstr":
+		if len(args) < 2 {
+			stdutil.PrintErr("Usage: genstr <string>\nGenerate code for string", nil)
+			return
+		}
+
+		s := ""
+
+		last := len(args[1]) - 1
+		for i, c := range args[1] {
+			x, y, diff := findmultiple(int(c))
+
+			if x == 0 && y == 0 && diff == 0 {
+				os.Stdout.Write([]byte("Multiple not found for '" + string(c) + "'"))
+				return
+			}
+			s += genmultiple(x, y, diff) + "."
+
+			if i != last {
+				s += ">"
+			}
+		}
+		os.Stdout.Write([]byte(s + "\n"))
 	default:
 		printActions()
 	}
 }
 
 func printActions() {
-	stdutil.PrintErr("Actions: run, debug, simplify", nil)
+	stdutil.PrintErr("Actions: run, debug, simplify, genval, genstr", nil)
 }
 
 func readFileOrStdin(args []string) (str string, ok bool) {
@@ -90,4 +138,32 @@ func readUntilEOF(scanner *bufio.Scanner) (str string, ok bool) {
 		ok = false
 	}
 	return
+}
+
+func genmultiple(x int, y int, diff int) string {
+	// Always take the lowest value as iteration number
+	if y < x {
+		x, y = y, x
+	}
+
+	s := ""
+	for i := 0; i < x; i++ {
+		s += "+"
+	}
+	s += "[->"
+	for i := 0; i < y; i++ {
+		s += "+"
+	}
+	s += "<]>"
+
+	if diff >= 0 {
+		for i := 0; i < diff; i++ {
+			s += "+"
+		}
+	} else {
+		for i := 0; i > diff; i-- {
+			s += "-"
+		}
+	}
+	return s
 }
