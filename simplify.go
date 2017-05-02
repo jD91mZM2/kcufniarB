@@ -16,7 +16,7 @@ func simplify(code string) (output string) {
 		case '<':
 			repeats := 0
 			i++
-			for code[i] == '<' {
+			for i < len(code) && code[i] == '<' {
 				repeats++
 				i++
 			}
@@ -30,7 +30,7 @@ func simplify(code string) (output string) {
 		case '>':
 			repeats := 0
 			i++
-			for code[i] == '>' {
+			for i < len(code) && code[i] == '>' {
 				repeats++
 				i++
 			}
@@ -44,7 +44,7 @@ func simplify(code string) (output string) {
 		case '+':
 			repeats := 0
 			i++
-			for code[i] == '+' {
+			for i < len(code) && code[i] == '+' {
 				repeats++
 				i++
 			}
@@ -58,7 +58,7 @@ func simplify(code string) (output string) {
 		case '-':
 			repeats := 0
 			i++
-			for code[i] == '-' {
+			for i < len(code) && code[i] == '-' {
 				repeats++
 				i++
 			}
