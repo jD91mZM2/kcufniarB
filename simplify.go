@@ -14,9 +14,33 @@ func simplify(code string) (output string) {
 
 		switch c {
 		case '<':
-			output += indent + "i--\n"
+			repeats := 0
+			i++
+			for code[i] == '<' {
+				repeats++
+				i++
+			}
+
+			if repeats == 0 {
+				output += indent + "i--\n"
+			} else {
+				jumps = repeats
+				output += indent + "c[i] -= " + strconv.Itoa(repeats+1) + "\n"
+			}
 		case '>':
-			output += indent + "i++\n"
+			repeats := 0
+			i++
+			for code[i] == '>' {
+				repeats++
+				i++
+			}
+
+			if repeats == 0 {
+				output += indent + "i++\n"
+			} else {
+				jumps = repeats
+				output += indent + "i += " + strconv.Itoa(repeats+1) + "\n"
+			}
 		case '+':
 			repeats := 0
 			i++
