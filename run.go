@@ -25,7 +25,8 @@ type env struct {
 	index int
 	debug bool
 
-	debugCode string
+	debugCode    string
+	debugSpeedup bool
 }
 
 func run(e *env) error {
@@ -45,11 +46,13 @@ func run(e *env) error {
 			return errInterrupt
 		}
 
-		clear()
 		e.debugCode += string(c)
-		renderdebugger(e)
 
 		debugDelay := time.Millisecond * 100
+		if !e.debugSpeedup {
+			clear()
+			renderdebugger(e)
+		}
 
 		switch c {
 		case '<':
@@ -100,6 +103,13 @@ func run(e *env) error {
 				return errInvalid
 			}
 
+			if e.debugSpeedup {
+				clear()
+				renderdebugger(e)
+
+				e.debugSpeedup = false
+			}
+
 			s := "["
 			for i, c := range e.vars {
 				if i > 0 {
@@ -115,11 +125,21 @@ func run(e *env) error {
 			s += "]\n"
 
 			os.Stdout.Write([]byte(s))
-			os.Stdout.Write([]byte("Press any key to continue... "))
+			os.Stdout.Write([]byte("[c]ontinue, [s]peedup"))
 
-			e.vars[e.index], err = getchar(stdin)
+			char, err := getchar(stdin)
 			if err != nil {
 				return err
+			}
+			for {
+				switch char {
+				case 'c':
+				case 's':
+					e.debugSpeedup = true
+				default:
+					continue
+				}
+				break
 			}
 		case '[':
 			code := ""
@@ -155,7 +175,7 @@ func run(e *env) error {
 			return errInvalid
 		}
 
-		if e.debug {
+		if e.debug && !e.debugSpeedup {
 			time.Sleep(debugDelay)
 		}
 	}
