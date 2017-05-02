@@ -46,12 +46,14 @@ func run(e *env) error {
 			return errInterrupt
 		}
 
-		e.debugCode += string(c)
-
 		debugDelay := time.Millisecond * 100
-		if !e.debugSpeedup {
-			clear()
-			renderdebugger(e)
+		if e.debug {
+			e.debugCode += string(c)
+
+			if !e.debugSpeedup {
+				clear()
+				renderdebugger(e)
+			}
 		}
 
 		switch c {
