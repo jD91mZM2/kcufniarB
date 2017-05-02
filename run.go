@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"golang.org/x/crypto/ssh/terminal"
@@ -23,6 +24,8 @@ type env struct {
 	vars  []rune
 	index int
 	debug bool
+
+	debugCode string
 }
 
 func run(e *env) error {
@@ -41,6 +44,9 @@ func run(e *env) error {
 		if stop {
 			return errInterrupt
 		}
+
+		debugDelay := time.Millisecond * 100
+
 		switch c {
 		case '<':
 			if e.index <= 0 {
@@ -61,21 +67,21 @@ func run(e *env) error {
 			e.vars[e.index]--
 		case '.':
 			char := e.vars[e.index]
-			len := utf8.RuneLen(char)
 
-			if len < 0 {
+			if char < 0 {
 				continue
 			}
 
-			bytes := make([]byte, len)
+			bytes := make([]byte, utf8.RuneLen(char))
 			utf8.EncodeRune(bytes, char)
 
 			if e.debug {
-				suffix := " (char #" + strconv.Itoa(int(char)) + ", e.index [" + strconv.Itoa(e.index) + "])\n"
+				suffix := " (char #" + strconv.Itoa(int(char)) + ", e.index [" + strconv.Itoa(e.index) + "])"
 				bytes = append(bytes, []byte(suffix)...)
 			}
 
 			os.Stdout.Write(bytes)
+			debugDelay = time.Second * 3
 		case ',':
 			e.vars[e.index], err = getchar(stdin)
 			if err != nil {
@@ -98,21 +104,33 @@ func run(e *env) error {
 			}
 
 			for e.vars[e.index] != 0 {
-				e2 := &env{}
-				*e2 = *e
-				e2.code = code
-				err := run(e2)
+				backup := e.code
+
+				e.code = code
+				err := run(e)
 				if err != nil {
 					return err
 				}
-				e.vars = e2.vars
-				e.index = e2.index
+
+				e.code = backup
 			}
+
+			continue // Don't trigger debug message
 		case ']':
 			return errUnmatch
 		case ' ', '\n', '\t':
 		default:
 			return errInvalid
+		}
+
+		if e.debug {
+			time.Sleep(debugDelay)
+			clear()
+			os.Stdout.Write([]byte("Index: #" + strconv.Itoa(e.index) + "\n"))
+			os.Stdout.Write([]byte("Value: #" + strconv.Itoa(int(e.vars[e.index])) + "\n\n"))
+
+			e.debugCode += string(c)
+			os.Stdout.Write([]byte(e.debugCode + "\n"))
 		}
 	}
 	return nil
