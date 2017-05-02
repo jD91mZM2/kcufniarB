@@ -45,6 +45,10 @@ func run(e *env) error {
 			return errInterrupt
 		}
 
+		clear()
+		e.debugCode += string(c)
+		renderdebugger(e)
+
 		debugDelay := time.Millisecond * 100
 
 		switch c {
@@ -78,11 +82,41 @@ func run(e *env) error {
 			if e.debug {
 				suffix := " (char #" + strconv.Itoa(int(char)) + ", e.index [" + strconv.Itoa(e.index) + "])"
 				bytes = append(bytes, []byte(suffix)...)
+
+				debugDelay = time.Second * 3
+			}
+			os.Stdout.Write(bytes)
+		case ',':
+			if e.debug {
+				os.Stdout.Write([]byte("Awaiting input...\n"))
 			}
 
-			os.Stdout.Write(bytes)
-			debugDelay = time.Second * 3
-		case ',':
+			e.vars[e.index], err = getchar(stdin)
+			if err != nil {
+				return err
+			}
+		case '!':
+			if !e.debug {
+				return errInvalid
+			}
+
+			s := "["
+			for i, c := range e.vars {
+				if i > 0 {
+					s += ", "
+				}
+				s += strconv.Itoa(i) + ": "
+
+				if c >= 0 {
+					s += string(c)
+				}
+				s += " (#" + strconv.Itoa(int(c)) + ")"
+			}
+			s += "]\n"
+
+			os.Stdout.Write([]byte(s))
+			os.Stdout.Write([]byte("Press any key to continue... "))
+
 			e.vars[e.index], err = getchar(stdin)
 			if err != nil {
 				return err
@@ -114,8 +148,6 @@ func run(e *env) error {
 
 				e.code = backup
 			}
-
-			continue // Don't trigger debug message
 		case ']':
 			return errUnmatch
 		case ' ', '\n', '\t':
@@ -125,12 +157,6 @@ func run(e *env) error {
 
 		if e.debug {
 			time.Sleep(debugDelay)
-			clear()
-			os.Stdout.Write([]byte("Index: #" + strconv.Itoa(e.index) + "\n"))
-			os.Stdout.Write([]byte("Value: #" + strconv.Itoa(int(e.vars[e.index])) + "\n\n"))
-
-			e.debugCode += string(c)
-			os.Stdout.Write([]byte(e.debugCode + "\n"))
 		}
 	}
 	return nil
@@ -155,4 +181,10 @@ func getchar(reader *bufio.Reader) (char rune, err error) {
 		return
 	}
 	return
+}
+
+func renderdebugger(e *env) {
+	os.Stdout.Write([]byte("Index: #" + strconv.Itoa(e.index) + "\n"))
+	os.Stdout.Write([]byte("Value: #" + strconv.Itoa(int(e.vars[e.index])) + "\n\n"))
+	os.Stdout.Write([]byte(e.debugCode + "\n"))
 }
