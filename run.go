@@ -73,8 +73,11 @@ func run(e *env) error {
 		case '-':
 			e.vars[e.index]--
 		case '.':
-			char := e.vars[e.index]
+			if e.debugSpeedup {
+				continue
+			}
 
+			char := e.vars[e.index]
 			if char < 0 {
 				continue
 			}
@@ -90,7 +93,7 @@ func run(e *env) error {
 			}
 			os.Stdout.Write(bytes)
 		case ',':
-			if e.debug {
+			if e.debug && !e.debugSpeedup {
 				os.Stdout.Write([]byte("Awaiting input...\n"))
 			}
 
