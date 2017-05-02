@@ -84,7 +84,6 @@ func run(e *env) error {
 		case '[':
 			code := ""
 			brackets := 0
-			i := e.index
 
 			for c, _, err := reader.ReadRune(); err == nil; c, _, err = reader.ReadRune() {
 				if c == '[' {
@@ -98,7 +97,7 @@ func run(e *env) error {
 				code += string(c)
 			}
 
-			for e.vars[i] != 0 {
+			for e.vars[e.index] != 0 {
 				e2 := &env{}
 				*e2 = *e
 				e2.code = code
