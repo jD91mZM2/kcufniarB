@@ -4,8 +4,8 @@ import "strconv"
 
 type normsimplifier struct{}
 
-func (s *normsimplifier) simplify(token rune, indent *string, repeats int) (string, bool) {
-	switch token {
+func (s *normsimplifier) simplify(code string, indent *string, i int, repeats int) (string, bool) {
+	switch code[i] {
 	case '<':
 		if repeats == 0 {
 			return *indent + "i--", false
