@@ -4,43 +4,43 @@ import "strconv"
 
 type normsimplifier struct{}
 
-func (s *normsimplifier) simplify(code string, indent *string, i int, repeats int) (string, bool) {
+func (s *normsimplifier) simplify(code string, indent *string, i int, repeats int) (string, int) {
 	switch code[i] {
 	case '<':
 		if repeats == 0 {
-			return *indent + "i--", false
+			return *indent + "i--", 0
 		}
-		return *indent + "i -= " + strconv.Itoa(repeats+1) + "", true
+		return *indent + "i -= " + strconv.Itoa(repeats+1), repeats
 	case '>':
 		if repeats == 0 {
-			return *indent + "i++", false
+			return *indent + "i++", 0
 		}
-		return *indent + "i += " + strconv.Itoa(repeats+1) + "", true
+		return *indent + "i += " + strconv.Itoa(repeats+1), repeats
 	case '+':
 		if repeats == 0 {
-			return *indent + "c[i]++", false
+			return *indent + "c[i]++", 0
 		}
-		return *indent + "c[i] += " + strconv.Itoa(repeats+1) + "", true
+		return *indent + "c[i] += " + strconv.Itoa(repeats+1), repeats
 	case '-':
 		if repeats == 0 {
-			return *indent + "c[i]--", false
+			return *indent + "c[i]--", 0
 		}
-		return *indent + "c[i] -= " + strconv.Itoa(repeats+1) + "", true
+		return *indent + "c[i] -= " + strconv.Itoa(repeats+1), repeats
 	case '.':
-		return *indent + "print(c[i])", false
+		return *indent + "print(c[i])", 0
 	case ',':
-		return *indent + "c[i] = getchar()", false
+		return *indent + "c[i] = getchar()", 0
 	case '[':
 		str := *indent + "while (c[i] != 0) {"
 		*indent += "\t"
-		return str, false
+		return str, 0
 	case ']':
 		if len(*indent) > 0 {
 			*indent = (*indent)[:len(*indent)-1]
 		}
-		return *indent + "}", false
+		return *indent + "}", 0
 	}
-	return "", false
+	return "", 0
 }
 
 func (s *normsimplifier) finalize(output string) string {

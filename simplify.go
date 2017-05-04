@@ -1,17 +1,17 @@
 package main
 
 type simplifier interface {
-	simplify(string, *string, int, int) (string, bool)
+	simplify(string, *string, int, int) (string, int)
 	finalize(string) string
 }
 
 func simplify(code string, s simplifier) (output string) {
 	indent := new(string)
 
-	jumps := 0
+	skip := 0
 	for i := range code {
-		if jumps > 0 {
-			jumps--
+		if skip > 0 {
+			skip--
 			continue
 		}
 
@@ -20,15 +20,13 @@ func simplify(code string, s simplifier) (output string) {
 			repeats++
 		}
 
-		line, skip := s.simplify(code, indent, i, repeats)
+		var line string
+		line, skip = s.simplify(code, indent, i, repeats)
+
 		if line == "" {
 			continue
 		}
 		output += line + "\n"
-
-		if skip {
-			jumps = repeats
-		}
 	}
-	return
+	return s.finalize(output)
 }

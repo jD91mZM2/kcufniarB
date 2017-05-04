@@ -55,6 +55,13 @@ func main() {
 			return
 		}
 		os.Stdout.Write([]byte(simplify(code, new(normsimplifier))))
+		//os.Stdout.Write([]byte(simplify(code, new(csimplifier))))
+	case "genc":
+		code, ok := readFileOrStdin(args[1:])
+		if !ok {
+			return
+		}
+		os.Stdout.Write([]byte(simplify(code, new(csimplifier))))
 	case "genval":
 		if len(args) < 2 {
 			stdutil.PrintErr("Usage: genval <number>\nGenerate code for number", nil)
