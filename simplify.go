@@ -1,9 +1,12 @@
 package main
 
-import "strconv"
+type simplifier interface {
+	simplify(rune, *string, int) (string, bool)
+	finalize(string) string
+}
 
-func simplify(code string) (output string) {
-	indent := ""
+func simplify(code string, s simplifier) (output string) {
+	indent := new(string)
 
 	jumps := 0
 	for i, c := range code {
@@ -12,75 +15,19 @@ func simplify(code string) (output string) {
 			continue
 		}
 
-		switch c {
-		case '<':
-			repeats := 0
-			i++
-			for i < len(code) && code[i] == '<' {
-				repeats++
-				i++
-			}
+		repeats := 0
+		for i+repeats+1 < len(code) && rune(code[i+repeats+1]) == c {
+			repeats++
+		}
 
-			if repeats == 0 {
-				output += indent + "i--\n"
-			} else {
-				jumps = repeats
-				output += indent + "c[i] -= " + strconv.Itoa(repeats+1) + "\n"
-			}
-		case '>':
-			repeats := 0
-			i++
-			for i < len(code) && code[i] == '>' {
-				repeats++
-				i++
-			}
+		line, skip := s.simplify(c, indent, repeats)
+		if line == "" {
+			continue
+		}
+		output += line + "\n"
 
-			if repeats == 0 {
-				output += indent + "i++\n"
-			} else {
-				jumps = repeats
-				output += indent + "i += " + strconv.Itoa(repeats+1) + "\n"
-			}
-		case '+':
-			repeats := 0
-			i++
-			for i < len(code) && code[i] == '+' {
-				repeats++
-				i++
-			}
-
-			if repeats == 0 {
-				output += indent + "c[i]++\n"
-			} else {
-				jumps = repeats
-				output += indent + "c[i] += " + strconv.Itoa(repeats+1) + "\n"
-			}
-		case '-':
-			repeats := 0
-			i++
-			for i < len(code) && code[i] == '-' {
-				repeats++
-				i++
-			}
-
-			if repeats == 0 {
-				output += indent + "c[i]--\n"
-			} else {
-				jumps = repeats
-				output += indent + "c[i] -= " + strconv.Itoa(repeats+1) + "\n"
-			}
-		case '.':
-			output += indent + "print(c[i])\n"
-		case ',':
-			output += indent + "c[i] = getchar()\n"
-		case '[':
-			output += indent + "while (c[i] != 0) {\n"
-			indent += "\t"
-		case ']':
-			if len(indent) > 0 {
-				indent = indent[:len(indent)-1]
-			}
-			output += indent + "}\n"
+		if skip {
+			jumps = repeats
 		}
 	}
 	return

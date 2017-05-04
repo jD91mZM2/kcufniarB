@@ -54,7 +54,7 @@ func main() {
 		if !ok {
 			return
 		}
-		os.Stdout.Write([]byte(simplify(code)))
+		os.Stdout.Write([]byte(simplify(code, new(normsimplifier))))
 	case "genval":
 		if len(args) < 2 {
 			stdutil.PrintErr("Usage: genval <number>\nGenerate code for number", nil)
