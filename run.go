@@ -15,6 +15,7 @@ import (
 
 var errBounds = errors.New("can't '<', already minimum value")
 var errInvalid = errors.New("invalid token")
+var errEOF = errors.New("EOF hit while searching for matching ']'")
 var errUnmatch = errors.New("unmatching bracket. ']' without previous '['")
 var errReading = errors.New("could not read char")
 var errInterrupt = errors.New("interrupted")
@@ -149,17 +150,23 @@ func run(e *env) error {
 		case '[':
 			code := ""
 			brackets := 0
+			found := false
 
 			for c, _, err := reader.ReadRune(); err == nil; c, _, err = reader.ReadRune() {
 				if c == '[' {
 					brackets++
 				} else if c == ']' {
 					if brackets <= 0 {
+						found = true
 						break
 					}
 					brackets--
 				}
 				code += string(c)
+			}
+
+			if !found {
+				return errEOF
 			}
 
 			for e.vars[e.index] != 0 {
