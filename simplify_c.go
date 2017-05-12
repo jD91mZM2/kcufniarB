@@ -62,6 +62,7 @@ func (s *csimplifier) finalize(code string) string {
 	return `#include <stdio.h>
 
 int main() {
+	// Here would be an 'i' array with enough memory allocated.
 ` + code + `}
 `
 }

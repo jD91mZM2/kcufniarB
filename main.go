@@ -115,7 +115,7 @@ func main() {
 }
 
 func printActions() {
-	stdutil.PrintErr("Actions: run, debug, simplify, genval, genstr", nil)
+	stdutil.PrintErr("Actions: run, debug, genval, genstr, simplify, genc", nil)
 }
 
 func readFileOrStdin(args []string) (str string, ok bool) {
