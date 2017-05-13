@@ -7,25 +7,25 @@ type normsimplifier struct{}
 func (s *normsimplifier) simplify(code string, indent *string, i int, repeats int) (string, int) {
 	switch code[i] {
 	case '<':
-		if repeats == 0 {
-			return *indent + "i--", 0
+		if repeats > 0 {
+			return *indent + "i -= " + strconv.Itoa(repeats+1), repeats
 		}
-		return *indent + "i -= " + strconv.Itoa(repeats+1), repeats
+		return *indent + "i--", 0
 	case '>':
-		if repeats == 0 {
-			return *indent + "i++", 0
+		if repeats > 0 {
+			return *indent + "i += " + strconv.Itoa(repeats+1), repeats
 		}
-		return *indent + "i += " + strconv.Itoa(repeats+1), repeats
+		return *indent + "i++", 0
 	case '+':
-		if repeats == 0 {
-			return *indent + "c[i]++", 0
+		if repeats > 0 {
+			return *indent + "c[i] += " + strconv.Itoa(repeats+1), repeats
 		}
-		return *indent + "c[i] += " + strconv.Itoa(repeats+1), repeats
+		return *indent + "c[i]++", 0
 	case '-':
-		if repeats == 0 {
-			return *indent + "c[i]--", 0
+		if repeats > 0 {
+			return *indent + "c[i] -= " + strconv.Itoa(repeats+1), repeats
 		}
-		return *indent + "c[i] -= " + strconv.Itoa(repeats+1), repeats
+		return *indent + "c[i]--", 0
 	case '.':
 		return *indent + "print(c[i])", 0
 	case ',':

@@ -50,18 +50,11 @@ func main() {
 			stdutil.PrintErr("Error while executing code", err)
 		}
 	case "simplify":
-		code, ok := readFileOrStdin(args[1:])
-		if !ok {
-			return
-		}
-		os.Stdout.Write([]byte(simplify(code, new(normsimplifier))))
-		//os.Stdout.Write([]byte(simplify(code, new(csimplifier))))
+		simplifyFileOrStdin(new(normsimplifier), args)
 	case "genc":
-		code, ok := readFileOrStdin(args[1:])
-		if !ok {
-			return
-		}
-		os.Stdout.Write([]byte(simplify(code, new(csimplifier))))
+		simplifyFileOrStdin(new(csimplifier), args)
+	case "genasm64":
+		simplifyFileOrStdin(new(asm64simplifier), args)
 	case "genval":
 		if len(args) < 2 {
 			stdutil.PrintErr("Usage: genval <number>\nGenerate code for number", nil)
@@ -116,6 +109,14 @@ func main() {
 
 func printActions() {
 	stdutil.PrintErr("Actions: run, debug, genval, genstr, simplify, genc", nil)
+}
+
+func simplifyFileOrStdin(s simplifier, args []string) {
+	code, ok := readFileOrStdin(args[1:])
+	if !ok {
+		return
+	}
+	os.Stdout.Write([]byte(simplify(code, s)))
 }
 
 func readFileOrStdin(args []string) (str string, ok bool) {

@@ -11,25 +11,25 @@ func (s *csimplifier) simplify(code string, indent *string, i int, repeats int) 
 
 	switch code[i] {
 	case '<':
-		if repeats == 0 {
-			return *indent + "i--;", 0
+		if repeats > 0 {
+			return *indent + "i-=" + strconv.Itoa(repeats+1) + ";", repeats
 		}
-		return *indent + "i-=" + strconv.Itoa(repeats+1) + ";", repeats
+		return *indent + "i--;", 0
 	case '>':
-		if repeats == 0 {
-			return *indent + "i++;", 0
+		if repeats > 0 {
+			return *indent + "i+=" + strconv.Itoa(repeats+1) + ";", repeats
 		}
-		return *indent + "i+=" + strconv.Itoa(repeats+1) + ";", repeats
+		return *indent + "i++;", 0
 	case '+':
-		if repeats == 0 {
-			return *indent + "*i++;", 0
+		if repeats > 0 {
+			return *indent + "*i+=" + strconv.Itoa(repeats+1) + ";", repeats
 		}
-		return *indent + "*i+=" + strconv.Itoa(repeats+1) + ";", repeats
+		return *indent + "*i++;", 0
 	case '-':
-		if repeats == 0 {
-			return *indent + "*i--;", 0
+		if repeats > 0 {
+			return *indent + "*i-=" + strconv.Itoa(repeats+1) + ";", repeats
 		}
-		return *indent + "*i-=" + strconv.Itoa(repeats+1) + ";", repeats
+		return *indent + "*i--;", 0
 	case '.':
 		return *indent + "putchar(*i);", 0
 	case ',':
