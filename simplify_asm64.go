@@ -42,7 +42,7 @@ func (s *asm64simplifier) simplify(code string, indent *string, i int, repeats i
 			*indent + "jne loop" + str + "_end\n", 0
 	case ']':
 		str := strconv.Itoa(s.num)
-		return *indent + "jmp loop " + str + "\n" +
+		return *indent + "jmp loop" + str + "\n" +
 			"loop" + str + "_end:", 0
 	}
 	return "", 0
